@@ -14,13 +14,18 @@ export const BOT_COMMANDS = [
 
 export interface MakeBotOptions {
   token?: string;
-  config?: Partial<Pick<BotConfig, "botUsername" | "shopifyShopDomain" | "supportEmail">>;
+  config?: Partial<Pick<BotConfig, "botUsername" | "shopifyShopDomain" | "shopifyConfigured" | "supportEmail">>;
 }
 
-function resolveRuntimeConfig(options: MakeBotOptions): Pick<BotConfig, "botUsername" | "shopifyShopDomain" | "supportEmail"> {
+function resolveRuntimeConfig(options: MakeBotOptions): Pick<BotConfig, "botUsername" | "shopifyShopDomain" | "shopifyConfigured" | "supportEmail"> {
+  const shopifyShopDomain = options.config?.shopifyShopDomain ?? process.env.SHOPIFY_SHOP_DOMAIN?.trim();
+
   return {
     botUsername: options.config?.botUsername ?? process.env.BOT_USERNAME?.trim() ?? getManagedBotUsername(),
-    shopifyShopDomain: options.config?.shopifyShopDomain ?? process.env.SHOPIFY_SHOP_DOMAIN?.trim(),
+    shopifyShopDomain,
+    shopifyConfigured:
+      options.config?.shopifyConfigured ??
+      Boolean(shopifyShopDomain && process.env.SHOPIFY_ADMIN_ACCESS_TOKEN?.trim()),
     supportEmail: options.config?.supportEmail ?? process.env.SUPPORT_EMAIL?.trim(),
   };
 }

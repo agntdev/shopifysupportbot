@@ -15,9 +15,21 @@ The bot token must never be committed to git. Create or connect the bot through 
 1. Copy `.env.example` to `.env`.
 2. Set `BOT_TOKEN` to the Telegram bot token.
 3. Keep `BOT_USERNAME=shopifysupportbot_hg37nz_bot` unless the managed bot identity changes.
-4. Optionally set `SHOPIFY_SHOP_DOMAIN` and `SUPPORT_EMAIL`.
+4. Optionally set `SUPPORT_EMAIL`.
 
 See [docs/telegram-setup.md](docs/telegram-setup.md) for the BotFather checklist and command configuration.
+
+## Shopify API Setup
+
+Set Shopify Admin API credentials as runtime secrets:
+
+```text
+SHOPIFY_SHOP_DOMAIN=your-store.myshopify.com
+SHOPIFY_ADMIN_ACCESS_TOKEN=shpat_...
+SHOPIFY_API_VERSION=2026-04
+```
+
+The app needs `read_orders` and `read_fulfillments` Admin API scopes. See [docs/shopify-setup.md](docs/shopify-setup.md) for the Shopify app checklist, optional `read_all_orders` scope, and verification command.
 
 ## Development
 

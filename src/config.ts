@@ -2,6 +2,7 @@ export interface BotConfig {
   botToken: string;
   botUsername: string;
   shopifyShopDomain?: string;
+  shopifyConfigured: boolean;
   supportEmail?: string;
 }
 
@@ -25,6 +26,7 @@ export function loadBotConfig(env: NodeJS.ProcessEnv = process.env): BotConfig {
     botToken,
     botUsername: readTrimmed(env, "BOT_USERNAME") ?? MANAGED_BOT_USERNAME,
     shopifyShopDomain: readTrimmed(env, "SHOPIFY_SHOP_DOMAIN"),
+    shopifyConfigured: Boolean(readTrimmed(env, "SHOPIFY_SHOP_DOMAIN") && readTrimmed(env, "SHOPIFY_ADMIN_ACCESS_TOKEN")),
     supportEmail: readTrimmed(env, "SUPPORT_EMAIL"),
   };
 }

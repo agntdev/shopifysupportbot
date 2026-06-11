@@ -15,12 +15,13 @@ export function buildStartMessage(firstName: string | undefined, config: Pick<Bo
   return lines.join("\n");
 }
 
-export function buildHelpMessage(config: Pick<BotConfig, "botUsername" | "shopifyShopDomain" | "supportEmail">): string {
+export function buildHelpMessage(config: Pick<BotConfig, "botUsername" | "shopifyShopDomain" | "shopifyConfigured" | "supportEmail">): string {
   const lines = [
     "ShopifySupportBot setup",
     "",
     `Bot: @${config.botUsername}`,
-    config.shopifyShopDomain ? `Shopify store: ${config.shopifyShopDomain}` : "Shopify store: not configured yet",
+    config.shopifyShopDomain ? `Shopify store: ${config.shopifyShopDomain}` : "Shopify store: pending",
+    `Shopify Admin API token: ${config.shopifyConfigured ? "configured" : "pending"}`,
     "",
     "Available commands:",
     "/start - Open the support assistant",
@@ -35,12 +36,13 @@ export function buildHelpMessage(config: Pick<BotConfig, "botUsername" | "shopif
   return lines.join("\n");
 }
 
-export function buildConfigurationStatus(config: Pick<BotConfig, "botUsername" | "shopifyShopDomain" | "supportEmail">): string {
+export function buildConfigurationStatus(config: Pick<BotConfig, "botUsername" | "shopifyShopDomain" | "shopifyConfigured" | "supportEmail">): string {
   return [
     "Configuration status",
     "",
     `Telegram bot: @${config.botUsername}`,
     `Shopify store domain: ${config.shopifyShopDomain ? "configured" : "pending"}`,
+    `Shopify Admin API access token: ${config.shopifyConfigured ? "configured" : "pending"}`,
     `Human support email: ${config.supportEmail ? "configured" : "pending"}`,
   ].join("\n");
 }
