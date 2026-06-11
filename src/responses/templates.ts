@@ -13,6 +13,10 @@ export const RESPONSE_TEMPLATES = {
     "I could not reach Shopify right now. Please try again shortly or contact support if the request is urgent.",
   orderNotFound:
     "I could not find an order matching those details. Please check the order number or checkout email and try again.",
+  trackingNeedsOrder:
+    "I can help with tracking, but I need the order number or checkout email first so I can match the shipment to the right order.",
+  humanEscalation:
+    "I can pass this to human support. Please include your order number, checkout email, and a short description of the issue.",
 } as const;
 
 export function buildOrderLookupPrompt(): string {
@@ -25,6 +29,14 @@ export function buildShopifyNotConfiguredResponse(options: ResponseTemplateOptio
 
 export function buildLookupErrorResponse(options: ResponseTemplateOptions = {}): string {
   return appendSupportContact(RESPONSE_TEMPLATES.lookupError, options);
+}
+
+export function buildTrackingNeedsOrderResponse(options: ResponseTemplateOptions = {}): string {
+  return appendSupportContact(RESPONSE_TEMPLATES.trackingNeedsOrder, options);
+}
+
+export function buildHumanEscalationResponse(options: ResponseTemplateOptions = {}): string {
+  return appendSupportContact(RESPONSE_TEMPLATES.humanEscalation, options);
 }
 
 export function buildOrderStatusResponse(result: OrderStatusLookupResult, options: ResponseTemplateOptions = {}): string {
