@@ -2,9 +2,11 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   buildLookupErrorResponse,
+  buildHumanEscalationResponse,
   buildOrderLookupPrompt,
   buildOrderStatusResponse,
   buildShopifyNotConfiguredResponse,
+  buildTrackingNeedsOrderResponse,
 } from "../../src/responses/index.js";
 
 test("buildOrderLookupPrompt asks for useful order identifiers", () => {
@@ -17,6 +19,11 @@ test("buildOrderLookupPrompt asks for useful order identifiers", () => {
 test("support contact is appended to unavailable responses", () => {
   assert.match(buildShopifyNotConfiguredResponse({ supportEmail: "help@example.com" }), /help@example\.com/);
   assert.match(buildLookupErrorResponse({ supportEmail: "help@example.com" }), /help@example\.com/);
+});
+
+test("specialized templates cover tracking and human escalation", () => {
+  assert.match(buildTrackingNeedsOrderResponse(), /order number/i);
+  assert.match(buildHumanEscalationResponse({ supportEmail: "help@example.com" }), /human support/i);
 });
 
 test("buildOrderStatusResponse renders professional order status summary", () => {

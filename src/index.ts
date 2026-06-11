@@ -5,8 +5,16 @@ import { Bot } from "grammy";
 import type { Context } from "grammy";
 import { buildConfigurationStatus, buildHelpMessage, buildStartMessage } from "./messages.js";
 import { getManagedBotUsername, loadBotConfig, type BotConfig } from "./config.js";
-import { buildLookupErrorResponse, buildOrderLookupPrompt, buildOrderStatusResponse, buildShopifyNotConfiguredResponse } from "./responses/index.js";
-import { hasShopifyCredentials, loadShopifyConfig, lookupOrderStatus, parseOrderLookupText } from "./shopify/index.js";
+import {
+  buildHumanEscalationResponse,
+  buildLookupErrorResponse,
+  buildOrderLookupPrompt,
+  buildOrderStatusResponse,
+  buildShopifyNotConfiguredResponse,
+  buildTrackingNeedsOrderResponse,
+} from "./responses/index.js";
+import { parseCustomerMessage } from "./routing/index.js";
+import { hasShopifyCredentials, loadShopifyConfig, lookupOrderStatus } from "./shopify/index.js";
 
 export const BOT_COMMANDS = [
   { command: "start", description: "Open the Shopify support assistant" },
@@ -50,20 +58,35 @@ export function makeBot(options: MakeBotOptions = {}): Bot<Context> {
   });
 
   bot.on("message:text", async (ctx) => {
-    const lookupInput = parseOrderLookupText(ctx.message.text);
+    const parsedMessage = parseCustomerMessage(ctx.message.text);
 
-    if (!lookupInput) {
+    if (parsedMessage.route === "human_escalation") {
+      await ctx.reply(buildHumanEscalationResponse(runtimeConfig));
+      return;
+    }
+
+    if (parsedMessage.route === "help") {
+      await ctx.reply(buildHelpMessage(runtimeConfig));
+      return;
+    }
+
+    if (parsedMessage.route === "tracking_lookup") {
+      await ctx.reply(buildTrackingNeedsOrderResponse(runtimeConfig));
+      return;
+    }
+
+    if (parsedMessage.route === "order_prompt" || !parsedMessage.lookupInput) {
       await ctx.reply(buildOrderLookupPrompt());
       return;
     }
 
-    if (!hasShopifyCredentials()) {
-      await ctx.reply(buildShopifyNotConfiguredResponse(runtimeConfig));
-      return;
-    }
-
     try {
-      const result = await lookupOrderStatus(loadShopifyConfig(), lookupInput);
+      if (!hasShopifyCredentials()) {
+        await ctx.reply(buildShopifyNotConfiguredResponse(runtimeConfig));
+        return;
+      }
+
+      const result = await lookupOrderStatus(loadShopifyConfig(), parsedMessage.lookupInput);
       await ctx.reply(buildOrderStatusResponse(result, runtimeConfig));
     } catch (error) {
       console.error("Shopify order lookup failed", error);
