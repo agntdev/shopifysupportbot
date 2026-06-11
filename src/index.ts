@@ -5,6 +5,7 @@ import { Bot } from "grammy";
 import type { Context } from "grammy";
 import { buildConfigurationStatus, buildHelpMessage, buildStartMessage } from "./messages.js";
 import { getManagedBotUsername, loadBotConfig, type BotConfig } from "./config.js";
+import { formatOrderStatusResult, hasShopifyCredentials, loadShopifyConfig, lookupOrderStatus, parseOrderLookupText } from "./shopify/index.js";
 
 export const BOT_COMMANDS = [
   { command: "start", description: "Open the Shopify support assistant" },
@@ -48,9 +49,25 @@ export function makeBot(options: MakeBotOptions = {}): Bot<Context> {
   });
 
   bot.on("message:text", async (ctx) => {
-    await ctx.reply(
-      "Thanks. Order lookup is being connected now. In the meantime, use /help for setup details or contact support for urgent requests.",
-    );
+    const lookupInput = parseOrderLookupText(ctx.message.text);
+
+    if (!lookupInput) {
+      await ctx.reply("Send an order number like #1001 or the email address used at checkout so I can look up the order.");
+      return;
+    }
+
+    if (!hasShopifyCredentials()) {
+      await ctx.reply("Shopify API credentials are not configured yet. Use /status to check setup progress.");
+      return;
+    }
+
+    try {
+      const result = await lookupOrderStatus(loadShopifyConfig(), lookupInput);
+      await ctx.reply(formatOrderStatusResult(result));
+    } catch (error) {
+      console.error("Shopify order lookup failed", error);
+      await ctx.reply("I could not reach Shopify right now. Please try again shortly or contact support for urgent help.");
+    }
   });
 
   bot.catch((err) => {

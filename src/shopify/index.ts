@@ -7,3 +7,15 @@ export {
   normalizeShopDomain,
   type ShopifyConfig,
 } from "./config.js";
+export { ShopifyApiError, shopifyAdminGraphql, type ShopifyGraphQLErrorItem, type ShopifyGraphQLResponse } from "./client.js";
+export {
+  buildOrderSearchQuery,
+  formatOrderStatus,
+  formatOrderStatusResult,
+  lookupOrderStatus,
+  parseOrderLookupText,
+  type OrderLookupInput,
+  type OrderStatus,
+  type OrderStatusLookupResult,
+  type TrackingInfo,
+} from "./order-lookup.js";
